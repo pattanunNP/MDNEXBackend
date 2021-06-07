@@ -1,9 +1,10 @@
+from os import access
 import config as ENV
 import jwt
-from fastapi import HTTPException, responses
+from fastapi import HTTPException
 from datetime import datetime,timedelta
 import bcrypt
-from database.MongoDBConnector import MongoConnector
+from utils.Recorddata import  Recorddata
 import uuid
 from pymongo import TEXT
 import requests
@@ -15,32 +16,99 @@ There are lines for checking token from user
 
 class Authentication:
 
-    db = MongoConnector.connect()
-    userDB = db.usersdata
-    userDocuments = db.userdocuments
+    userDB = Recorddata.userDB
+    userDocuments = Recorddata.userDocuments
+    projectStore = Recorddata.projectStore
+    teamStore = Recorddata.teamStore
+
     
     @staticmethod
     def verify_token(x_token):
+       
         x_token = x_token.split("Bearer")[-1]
         
-        jwt_options = {'verify_signature': False, 'verify_exp': True}
+        jwt_options = {'verify_signature':False, 'verify_exp': True}
         if len(x_token) !=0:
             try:
-                data = jwt.decode(x_token, ENV.SECERET_KEY, algorithms=['HS256'], options=jwt_options)
-                return x_token,data
+                data = jwt.decode(x_token, ENV.ACCESS_SECERET_KEY, algorithms=['HS256'], options=jwt_options)
+                return x_token, data
 
-            except Exception as err:
-                raise HTTPException(status_code=403, detail="X-Token invalid")
-                
+            except jwt.exceptions.DecodeError as err:
+                print(err)
+                raise HTTPException(
+                            status_code=401,
+                            detail="Decode error")
+
+            except jwt.ExpiredSignatureError as err:
+                print(err)
+                raise HTTPException(
+                            status_code=401,
+                            detail="Token is expired. Please update your token.")
+                            
+                        
+            except jwt.InvalidSignatureError as err:
+                print(err)
+                raise HTTPException(
+                            status_code=401,
+                            detail="Token invalid")
+                        
         else:
-            raise HTTPException(status_code=401, detail="Missing X-Token")
+            raise HTTPException(status_code=400, detail="Missing token")
         
-    
     @staticmethod
-    def login(username, password, timeout=5):
+    def get_acess_token(refresh_token):
+        jwt_options = {'verify_signature':True, 'verify_exp': True}
+        try:
+            payload = jwt.decode(refresh_token,
+                                 ENV.REFRESH_SECERET_KEY,
+                                 algorithms=['HS256'],
+                                options=jwt_options)
+            acess_token_expire = datetime.utcnow() + timedelta(minutes=0,seconds=30)
+            payload_access = {
+                
+                        "issuer":payload['issuer'],
+                        "uuid":payload['uuid'],
+                        "exp":acess_token_expire 
+                      
+                    }
+            access_token = jwt.encode(payload_access, ENV.ACCESS_SECERET_KEY)
+            response = {
+                        
+                        "refresh_token":refresh_token,
+                        "access_token":access_token,
+                        "token_type":"Bearer",
+                    
+            }
+
+            return response
+
+        except jwt.exceptions.DecodeError as err:
+            print(err)
+            raise HTTPException(
+                        status_code=401,
+                        detail="Decode error")
+
+        except jwt.ExpiredSignatureError as err:
+             print(err)
+             raise HTTPException(
+                        status_code=401,
+                        detail="Token is expired. Please update your token.",
+                        
+                    )
+        except jwt.InvalidSignatureError as err:
+            print(err)
+            raise HTTPException(
+                        status_code=401,
+                        detail="Token invalid",
+                        
+                    )
+
+
+    @staticmethod
+    def login(username, password):
         
         user_check = [user for user in Authentication.userDB.find({"username":username})]
-   
+        
         
         if len(user_check) == 1:
 
@@ -52,37 +120,41 @@ class Authentication:
 
             if isVerified == True:
                 if bcrypt.checkpw(query_password,hashed_password):
-                    payload = {
-                        "name":username,
+
+                    acess_token_expire = datetime.utcnow() + timedelta(minutes=0,seconds=30)
+                    refresh_token_expire = datetime.utcnow() + timedelta(weeks=1)
+
+                    payload_refresh = {
+                        
+                        "issuer":username,
                         "uuid":uuid_key,
-                        "exp": datetime.utcnow() + timedelta(days=timeout)
+                        "exp": refresh_token_expire
                     }
-                    token = jwt.encode(payload, ENV.SECERET_KEY)
-
-                    respone = {
-
+                    payload_access = {
+                        "issuer":username,
                         "uuid":uuid_key,
-                        "exp":f"{timeout} days",
-                        "token":token
+                        "exp":acess_token_expire 
+                      
+                    }
+                    access_token = jwt.encode(payload_access, ENV.ACCESS_SECERET_KEY)
+                    refresh_token = jwt.encode(payload_refresh, ENV.REFRESH_SECERET_KEY)
+
+                    response = {
+                        
+                        "refresh_token":refresh_token,
+                        "access_token":access_token,
+                        "token_type":"Bearer",
+                        "message":"Login successfully"
                     }
 
-                    return respone
+                    return response
                     
                 else:
-                    respone = {
-                        "message":"Invild password"
-                    }
-                    return respone
+                    raise HTTPException(status_code=403, detail="Invild password")
             else:
-                respone = {
-                    "message":"Please verify email first !"
-                }
-                return respone
+                raise HTTPException(status_code=401, detail="Please verify email first !")
         else:
-            respone = {
-                "message":"Couldn't found username"
-            }
-            return respone
+            raise HTTPException(status_code=403, detail="Couldn't found username")
 
 
     @staticmethod
@@ -124,21 +196,19 @@ class Authentication:
         
 
     @staticmethod
-    def register(username, email, password):
+    def register(username, email, password,role=None):
         
         #check email
         email_check = [email for email in Authentication.userDB.find({"email":email})]
         user_check = [user for user in Authentication.userDB.find({"username":username})]
 
         if len(email_check) >= 1 :
-            respone ={
-                "message":"email already exists"
-            }
-            raise HTTPException(status_code=409, detail=respone)
+    
+            raise HTTPException(status_code=409, detail="email already exists")
 
         elif len(user_check)>=1:
-             respone ={ "message":"username already exists"}
-             raise HTTPException(status_code=409, detail=respone)
+       
+             raise HTTPException(status_code=409, detail="username already exists")
             
 
         else:
@@ -152,7 +222,7 @@ class Authentication:
                 "username":username,
                 "password": hashed_password,
                 "uuid":user_id,
-                "message":"user created"
+                "message":"User created"
             
             
             }
@@ -164,7 +234,9 @@ class Authentication:
                 "uuid":user_id,
                 "registedTime":pendulum.now(tz='Asia/Bangkok'),
                 "isVerified":False,
-                "verifiedTime":""
+                "verifiedTime":"",
+                "last_login":"",
+                "login_count":0
                 
             })
 
@@ -173,7 +245,7 @@ class Authentication:
                 "username":username,
                 "profile_photo":"https://image.flaticon.com/icons/png/512/149/149071.png",
                 "uuid":user_id,
-                "role":"",
+                "role":role,
                 "projects":[], 
                 "teams":[]
             })
@@ -197,8 +269,7 @@ class Authentication:
     @staticmethod
     def confrim_email(verify_token):
      
-
-        jwt_options = {'verify_signature': False, 'verify_exp': True}
+        jwt_options = {'verify_signature': True, 'verify_exp': True}
         if len(verify_token) !=0:
             try:
                 data = jwt.decode(verify_token, ENV.SECERET_EMAIL_KEY, algorithms=['HS256'], options=jwt_options)
@@ -212,8 +283,10 @@ class Authentication:
                 )
                 return response
 
-            except Exception as err:
-                raise HTTPException(status_code=403, detail="X-Token invalid")
+            except jwt.ExpiredSignatureError:
+                raise HTTPException(status_code=401, detail="Token expried")
+
+     
                 
         else:
-            raise HTTPException(status_code=401, detail="Missing X-Token")
+            raise HTTPException(status_code=400, detail="Missing Token")

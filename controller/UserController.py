@@ -1,7 +1,6 @@
 import uuid
 from typing import Optional
-from service.UserMangement import UserMangemnet
-from .Schema import Register, Login, SendVerifyEmail
+from service.UserMangement import UserMangement
 from service.AuthenticationMangement import Authentication
 from fastapi import APIRouter,Header
 
@@ -31,9 +30,31 @@ async def search_user(query:str, Authorization: Optional[str] = Header(None)):
 
     _, data = Authentication.verify_token(Authorization)
 
-    response = UserMangemnet.search_user(query, data)
+    response = UserMangement.search_user(query, data)
  
 
     return response 
 
 
+
+@user_control_api.get('/dashboard')
+async def getUserData(Authorization: Optional[str] = Header(None)):
+    """
+    เป็น API สำหรับการสร้าง Project
+    Parameters
+    ----------
+    data : pydantic
+    * project_name  : str
+    * project_description : Optional[str] = None
+    Returns
+    -------
+    Token 
+
+    """
+
+   
+    _, data = Authentication.verify_token(Authorization)
+
+    response = UserMangement.get_userData(data)
+
+    return response

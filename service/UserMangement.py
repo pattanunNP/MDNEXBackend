@@ -1,4 +1,5 @@
-
+import pprint
+import re
 from starlette import responses
 import config as ENV
 from fastapi import HTTPException
@@ -8,7 +9,7 @@ import pendulum
 
 
 
-class UserMangemnet:
+class UserMangement:
 
     userDocuments = Recorddata.userDocuments
     projectStore = Recorddata.projectStore
@@ -23,8 +24,8 @@ class UserMangemnet:
 
         if query != None:
             
-           for i,user in enumerate(UserMangemnet.userDocuments.find({"username":{"$regex":f"{query}",
-                                                                                "$options":"i"}}).limit(100)):
+           for i,user in enumerate(UserMangement.userDocuments.find({"username":{"$regex":f"{query}",
+                                                                    "$options":"i"}}).limit(100)):
                if user["uuid"] != token_data["uuid"]:                                                          
                     user_obj ={
                         "_id":str(user["_id"]),
@@ -44,6 +45,28 @@ class UserMangemnet:
             response = {
                 "message":"empty"
             }
+        return response
+
+    @staticmethod
+    def get_userData(token_data):
+        response ={}
+  
+ 
+        result = UserMangement.userDocuments.find_one({"uuid":token_data['uuid']})
+
+        response={
+            "profileImage":result["profile_photo"],
+            "email":result["email"],
+            "projects":result["projects"],
+            "uuid":result["uuid"],
+            "username":result["username"],
+            "role":result["role"],
+            "teams":result["teams"],
+            "message":"Success"
+        }
+        
+                                                                
+     
         return response
 
        

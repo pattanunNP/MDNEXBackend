@@ -10,7 +10,10 @@ load_dotenv(dotenv_path)
 MONGODB_USER = str(os.environ.get("MONGODB_URL", "mongodb+srv://admin:8ZY4f8ybNyWV1wa0@mdnex.ijnzy.mongodb.net/UserDB?retryWrites=true&w=majority"))
 
 
-SECERET_KEY = str(os.environ.get("SECERET_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWRtaW5fbWFzdGVya2V5IiwiZW1haWwiOiJhZG1pbkBzdGFuZHVwY29kZS5jbyJ9.XCrCZtxSH89ohXCf-M5MCdp1P0FMEh8SHRwbv0Qsl1w"))
+REFRESH_SECERET_KEY = str(os.environ.get("REFRESH_SECERET_KEY", "301772f9a90a90375fd4b4a1efb0bcc10cb0ff50fc8843281cba49657111afe3"))
+
+ACCESS_SECERET_KEY = str(os.environ.get("ACCESS_SECERET_KEY", "10a4843d4f1edd92eeb9f2e2aa48a7a13d39be3be2ea64c8214a388be90fdcf5"))
+
 
 MAILGUN_API_KEY = str(os.environ.get("MAILGUN_API_KEY","c56bc946827aea9f4e42562f4cc08f32-1d8af1f4-de20447d"))
 

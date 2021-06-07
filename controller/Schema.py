@@ -5,6 +5,7 @@ class Register(BaseModel):
     username:str
     password: str
     email: str
+    role:Optional[str] = None
 
 
 class SendVerifyEmail(BaseModel):
@@ -39,3 +40,6 @@ class AddTeamMembers(BaseModel):
 
 class DeleteTeam(BaseModel):
     team_uuid: str
+
+class Refresh(BaseModel):
+    refresh_token:str

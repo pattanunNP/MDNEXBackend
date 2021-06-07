@@ -1,7 +1,7 @@
 import requests
-from .Schema import Register, Login,SendVerifyEmail
+from .Schema import Register, Login,SendVerifyEmail,Refresh
 from service.AuthenticationMangement import Authentication
-from fastapi import APIRouter, Response
+from fastapi import APIRouter
 from starlette.responses import RedirectResponse
 import config as ENV
 
@@ -29,8 +29,9 @@ async def register(data: Register):
     username = data.username
     password = data.password
     email = data.email
+    role = data.role
 
-    response = Authentication.register(username, email, password)
+    response = Authentication.register(username, email, password, role)
  
 
     return response 
@@ -74,7 +75,7 @@ async def confrim_email(verify_token:str):
 
 
 @acess_control_api.get('/check/verify-email')
-async def confrim_email(uuid:str):
+async def check_verify_email(uuid:str):
 
     """
     เป็น API สำหรับการสร้าง User
@@ -114,5 +115,28 @@ async def login(data: Login):
     password = data.password
 
     response = Authentication.login(username, password)
+
+    return response
+
+
+@acess_control_api.post('/refresh-token')
+async def get_refresh_token(data: Refresh):
+    """
+    เป็น API สำหรับการสร้าง User
+    Parameters
+    ----------
+    data : pydantic
+    * username  : str
+    * password : str
+    Returns
+    -------
+    Token 
+
+    """
+
+    refresh_token = data.refresh_token
+  
+
+    response = Authentication.get_acess_token(refresh_token)
 
     return response
