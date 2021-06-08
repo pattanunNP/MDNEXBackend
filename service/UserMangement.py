@@ -20,22 +20,25 @@ class UserMangement:
     @staticmethod
     def search_user(query, token_data):
         response ={}
-        users_match ={}
+        users_match = []
 
-        if query != None:
+        if len(query)>0:
             
            for i,user in enumerate(UserMangement.userDocuments.find({"username":{"$regex":f"{query}",
                                                                     "$options":"i"}}).limit(100)):
                if user["uuid"] != token_data["uuid"]:                                                          
                     user_obj ={
                         "_id":str(user["_id"]),
+                        "regex":query,
                         "email":user["email"],
                         "uuid":user["uuid"],
+                        "role":user["role"],
+                        "profileimage":user['profile_photo'],
                         "username":user["username"]}
-                    users_match[i] = user_obj
+                    users_match.append(user_obj)
 
            response = {
-            "queryString":f"{query}",
+            
             "match": users_match,
             "lasted_query":pendulum.now(tz='Asia/Bangkok')
             }
@@ -43,7 +46,9 @@ class UserMangement:
 
         else:
             response = {
-                "message":"empty"
+                "queryString":f"{query}",
+                "match":[],
+                "lasted_query":pendulum.now(tz='Asia/Bangkok')
             }
         return response
 
@@ -54,10 +59,15 @@ class UserMangement:
  
         result = UserMangement.userDocuments.find_one({"uuid":token_data['uuid']})
 
+        count_projects = len(result["projects"])
+        count_teams = len(result['teams'])
+
         response={
             "profileImage":result["profile_photo"],
             "email":result["email"],
             "projects":result["projects"],
+            "count_teams":count_teams,
+            "count_projects":count_projects,
             "uuid":result["uuid"],
             "username":result["username"],
             "role":result["role"],

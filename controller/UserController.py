@@ -9,21 +9,20 @@ user_control_api = APIRouter()
 
 
 # acess controller 
-@user_control_api.get('/search/user')
+@user_control_api.get('/search')
 async def search_user(query:str, Authorization: Optional[str] = Header(None)):
 
     """
-    เป็น API สำหรับการสร้าง User
+    เป็น API สำหรับการ Search User
     Parameters
     ----------
     data : pydantic
     * username  : str
-    * password : str
-    * email  : str
+  
     
     Returns
     -------
-    user, hashpassword, email, uuid
+    username, email, uuid
 
     """
     
