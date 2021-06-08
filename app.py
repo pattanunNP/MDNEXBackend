@@ -21,8 +21,6 @@ origins = [
     "https://mdnex.netlify.app",
     "https://mdnex.standupcode.co",
 
-  
-
 ]
 
 app.add_middleware(

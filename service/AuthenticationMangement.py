@@ -63,7 +63,7 @@ class Authentication:
                                  ENV.REFRESH_SECERET_KEY,
                                  algorithms=['HS256'],
                                 options=jwt_options)
-            acess_token_expire = datetime.utcnow() + timedelta(minutes=0,seconds=30)
+            acess_token_expire = datetime.utcnow() + timedelta(minutes=60,seconds=30)
             payload_access = {
                 
                         "issuer":payload['issuer'],
@@ -121,7 +121,7 @@ class Authentication:
             if isVerified == True:
                 if bcrypt.checkpw(query_password,hashed_password):
 
-                    acess_token_expire = datetime.utcnow() + timedelta(minutes=0,seconds=30)
+                    acess_token_expire = datetime.utcnow() + timedelta(minutes=60,seconds=30)
                     refresh_token_expire = datetime.utcnow() + timedelta(weeks=1)
 
                     payload_refresh = {
@@ -256,16 +256,19 @@ class Authentication:
 
     @staticmethod
     def check_verify_email(uuid_key):
-        result = Authentication.userDB.find_one({"uuid":uuid_key})
-        
-        response = {
-            "username":result["username"],
-            "email":result["email"],
-            "isVerified":bool(result['isVerified']),
-            "verifiedTime":result['verifiedTime']
-        }
-        return response
-
+        try:
+            result = Authentication.userDB.find_one({"uuid":uuid_key})
+            
+            response = {
+                "username":result["username"],
+                "email":result["email"],
+                "isVerified":bool(result['isVerified']),
+                "verifiedTime":result['verifiedTime']
+            }
+            return response
+        except:
+          raise HTTPException(status_code=404, detail="user not fround")
+            
     @staticmethod
     def confrim_email(verify_token):
      
