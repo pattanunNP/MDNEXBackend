@@ -1,26 +1,19 @@
-
 import config as ENV
-from controller.AuthenticationController import acess_control_api 
-from controller.UserController import  user_control_api
-from controller.ProjectsController import  projects_control_api
-from controller.TeamsController import  teams_control_api
+from controller.AuthenticationController import acess_control_api
+from controller.UserController import user_control_api
+from controller.ProjectsController import projects_control_api
+from controller.TeamsController import teams_control_api
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 from fastapi import FastAPI
 
 
-
-
-app = FastAPI(
-    title="MD NEX",
-    description="API for MDNEX",
-    version="0.1.0")
+app = FastAPI(title="MD NEX", description="API for MDNEX", version="0.1.0")
 
 origins = [
     "http://localhost:3000",
     "https://mdnex.netlify.app",
     "https://mdnex.standupcode.co",
-
 ]
 
 app.add_middleware(
@@ -31,7 +24,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get('/', tags=['Basic'], status_code=200)
+
+@app.get("/", tags=["Basic"], status_code=200)
 def index():
     status = {"message": "MD NEX API V.0.1.0"}
     status = jsonable_encoder(status)

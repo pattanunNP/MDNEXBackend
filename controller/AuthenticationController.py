@@ -1,5 +1,5 @@
 import requests
-from .Schema import Register, Login,SendVerifyEmail,Refresh
+from .Schema import Register, Login, SendVerifyEmail, Refresh
 from service.AuthenticationMangement import Authentication
 from fastapi import APIRouter
 from starlette.responses import RedirectResponse
@@ -8,8 +8,8 @@ import config as ENV
 acess_control_api = APIRouter()
 
 
-# acess controller 
-@acess_control_api.post('/register')
+# acess controller
+@acess_control_api.post("/register")
 async def register(data: Register):
 
     """
@@ -32,11 +32,11 @@ async def register(data: Register):
     role = data.role
 
     response = Authentication.register(username, email, password, role)
- 
 
-    return response 
+    return response
 
-@acess_control_api.post('/send/confrim-email')
+
+@acess_control_api.post("/send/confrim-email")
 async def send_confrim_email(data: SendVerifyEmail):
 
     username = data.username
@@ -47,8 +47,9 @@ async def send_confrim_email(data: SendVerifyEmail):
 
     return response
 
-@acess_control_api.get('/confrim/email')
-async def confrim_email(verify_token:str):
+
+@acess_control_api.get("/confrim/email")
+async def confrim_email(verify_token: str):
 
     """
     เป็น API สำหรับการสร้าง User
@@ -64,7 +65,6 @@ async def confrim_email(verify_token:str):
     state isVerified
 
     """
- 
 
     response = Authentication.confrim_email(verify_token)
 
@@ -74,8 +74,8 @@ async def confrim_email(verify_token:str):
     return response
 
 
-@acess_control_api.get('/check/verify-email')
-async def check_verify_email(uuid:str):
+@acess_control_api.get("/check/verify-email")
+async def check_verify_email(uuid: str):
 
     """
     เป็น API สำหรับการสร้าง User
@@ -90,13 +90,13 @@ async def check_verify_email(uuid:str):
     state isVerified
 
     """
- 
 
     response = Authentication.check_verify_email(uuid)
-    
+
     return response
 
-@acess_control_api.post('/login')
+
+@acess_control_api.post("/login")
 async def login(data: Login):
     """
     เป็น API สำหรับการสร้าง User
@@ -119,7 +119,7 @@ async def login(data: Login):
     return response
 
 
-@acess_control_api.post('/refresh-token')
+@acess_control_api.post("/refresh-token")
 async def get_refresh_token(data: Refresh):
     """
     เป็น API สำหรับการสร้าง User
@@ -135,7 +135,6 @@ async def get_refresh_token(data: Refresh):
     """
 
     refresh_token = data.refresh_token
-  
 
     response = Authentication.get_acess_token(refresh_token)
 
