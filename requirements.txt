@@ -10,3 +10,5 @@ opencv-python
 numpy
 requests
 pendulum
+aiofiles
+python-multipart
