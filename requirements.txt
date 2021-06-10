@@ -1,6 +1,7 @@
 fastapi
 python-dotenv
 PyJWT
+Pillow
 pymongo
 fastapi-utils
 bcrypt
