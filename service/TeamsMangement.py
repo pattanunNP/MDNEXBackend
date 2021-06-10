@@ -20,13 +20,13 @@ class TeamsMangement:
             "team_name": team_name,
             "team_uuid": team_uuid,
             "team_description": team_description,
-            "team_admin_name": token_data["name"],
+            "team_admin_name": token_data["issuer"],
             "team_admin_uuid": token_data["uuid"],
             "team_last_modified": pendulum.now(tz="Asia/Bangkok"),
             "team_created_time": pendulum.now(tz="Asia/Bangkok"),
             "team_modified_log": {
                 0: {
-                    "name": token_data["name"],
+                    "name": token_data["issuer"],
                     "uuid": token_data["uuid"],
                     "action": "create_team",
                     "timestamp": pendulum.now(tz="Asia/Bangkok"),
@@ -35,7 +35,7 @@ class TeamsMangement:
             "team_project": [],
             "team_members": {
                 0: {
-                    "name": token_data["name"],
+                    "name": token_data["issuer"],
                     "uuid": token_data["uuid"],
                     "role": "team_admin",
                     "timestamp": pendulum.now(tz="Asia/Bangkok"),
@@ -49,13 +49,13 @@ class TeamsMangement:
                 "team_name": team_name,
                 "team_uuid": team_uuid,
                 "team_description": team_description,
-                "team_admin_name": token_data["name"],
+                "team_admin_name": token_data["issuer"],
                 "team_admin_uuid": token_data["uuid"],
                 "team_last_modified": pendulum.now(tz="Asia/Bangkok"),
                 "team_created_time": pendulum.now(tz="Asia/Bangkok"),
                 "team_modified_log": [
                     {
-                        "name": token_data["name"],
+                        "name": token_data["issuer"],
                         "uuid": token_data["uuid"],
                         "action": "create_team",
                         "timestamp": pendulum.now(tz="Asia/Bangkok"),
@@ -63,7 +63,7 @@ class TeamsMangement:
                 ],
                 "team_members": [
                     {
-                        "name": token_data["name"],
+                        "name": token_data["issuer"],
                         "uuid": token_data["uuid"],
                         "role": "team_admin",
                         "timestamp": pendulum.now(tz="Asia/Bangkok"),
@@ -72,7 +72,9 @@ class TeamsMangement:
                 "team_projects": [],
             }
         )
-
+        TeamsMangement.userDocuments.find_one_and_update(
+            {"uuid": token_data["uuid"]}, {"$push": {"teams": team_uuid}}
+        )
         try:
             TeamsMangement.userDocuments.create_index([("team_uuid", "text")])
             TeamsMangement.userDocuments.create_index([("team_admin_uuid", "text")])

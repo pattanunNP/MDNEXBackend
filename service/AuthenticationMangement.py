@@ -66,7 +66,7 @@ class Authentication:
                 algorithms=["HS256"],
                 options=jwt_options,
             )
-            acess_token_expire = datetime.utcnow() + timedelta(minutes=60, seconds=30)
+            acess_token_expire = datetime.utcnow() + timedelta(days=7, seconds=30)
             payload_access = {
                 "issuer": payload["issuer"],
                 "uuid": payload["uuid"],
@@ -114,7 +114,7 @@ class Authentication:
                 if bcrypt.checkpw(query_password, hashed_password):
 
                     acess_token_expire = datetime.utcnow() + timedelta(
-                        minutes=60, seconds=30
+                        days=7, seconds=30
                     )
                     refresh_token_expire = datetime.utcnow() + timedelta(weeks=1)
 

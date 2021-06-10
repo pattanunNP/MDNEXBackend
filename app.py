@@ -3,6 +3,10 @@ from controller.AuthenticationController import acess_control_api
 from controller.UserController import user_control_api
 from controller.ProjectsController import projects_control_api
 from controller.TeamsController import teams_control_api
+from controller.FileUploadController import fileupload_control_api
+from controller.LabelingController import labeling_control_api
+
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 from fastapi import FastAPI
@@ -36,3 +40,5 @@ app.include_router(acess_control_api, prefix="/api/v1")
 app.include_router(projects_control_api, prefix="/api/v1")
 app.include_router(teams_control_api, prefix="/api/v1")
 app.include_router(user_control_api, prefix="/api/v1")
+app.include_router(fileupload_control_api, prefix="/api/v1")
+app.include_router(labeling_control_api, prefix="/api/v1")

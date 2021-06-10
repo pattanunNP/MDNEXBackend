@@ -53,3 +53,25 @@ async def getUserData(Authorization: Optional[str] = Header(None)):
     response = UserMangement.get_userData(data)
 
     return response
+
+
+@user_control_api.get("/userprojects")
+async def get_user_projects_data(Authorization: Optional[str] = Header(None)):
+    """
+    เป็น API สำหรับการสร้าง Project
+    Parameters
+    ----------
+    data : pydantic
+    * project_id  : str
+
+    Returns
+    -------
+    Project Infomation
+
+    """
+
+    _, token_data = Authentication.verify_token(Authorization)
+
+    response = UserMangement.get_user_projects(token_data)
+
+    return response

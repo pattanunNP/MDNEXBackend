@@ -1,11 +1,13 @@
 import pprint
 import re
+from pendulum import date
 from starlette import responses
 import config as ENV
 from fastapi import HTTPException
 from utils.Recorddata import Recorddata
 import uuid
 import pendulum
+from datetime import datetime
 
 
 class UserMangement:
@@ -76,3 +78,36 @@ class UserMangement:
 
         return response
 
+    @staticmethod
+    def get_user_projects(token_data):
+        projects_data = {}
+        projects_match = []
+
+        for i, result in enumerate(
+            UserMangement.projectStore.find(
+                {"project_members": {"$elemMatch": {"uuid": token_data["uuid"]}}}
+            )
+        ):
+
+            project_data_obj = {
+                "_id": str(result["_id"]),
+                "project_name": result["project_name"],
+                "project_uuid": result["project_uuid"],
+                "project_description": result["project_description"],
+                "project_owner_name": result["project_owner_name"],
+                "project_owner_uuid": result["project_owner_uuid"],
+                "project_last_modified": result["project_last_modified"],
+                "project_created_time": result["project_created_time"],
+                "project_modified_log": result["project_modified_log"],
+                "project_members": result["project_members"],
+                "project_datasets": result["project_datasets"],
+                "project_labeltool": result["project_labeltool"],
+                "isDeactive": result["isDeactive"],
+            }
+
+            projects_match.append(project_data_obj)
+
+        projects_data = {
+            "match": projects_match,
+        }
+        return projects_data

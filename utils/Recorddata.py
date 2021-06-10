@@ -9,3 +9,4 @@ class Recorddata:
     userDocuments = db.userdocuments
     projectStore = db.projectstore
     teamStore = db.teamstore
+    datastore = db.datastore

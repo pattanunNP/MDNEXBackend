@@ -6,5 +6,7 @@ fastapi-utils
 bcrypt
 uvicorn
 dnspython
+opencv-python
+numpy
 requests
 pendulum

@@ -21,13 +21,13 @@ class ProjectMangement:
             "project_name": project_name,
             "project_uuid": project_uuid,
             "project_description": project_description,
-            "project_owner_name": token_data["name"],
+            "project_owner_name": token_data["issuer"],
             "project_owner_uuid": token_data["uuid"],
             "project_last_modified": pendulum.now(tz="Asia/Bangkok"),
             "project_created_time": pendulum.now(tz="Asia/Bangkok"),
             "project_modified_log": {
                 0: {
-                    "name": token_data["name"],
+                    "name": token_data["issuer"],
                     "uuid": token_data["uuid"],
                     "action": "create_project",
                     "timestamp": pendulum.now(tz="Asia/Bangkok"),
@@ -35,7 +35,7 @@ class ProjectMangement:
             },
             "project_member": {
                 0: {
-                    "name": token_data["name"],
+                    "name": token_data["issuer"],
                     "uuid": token_data["uuid"],
                     "role": "project_owner",
                     "timestamp": pendulum.now(tz="Asia/Bangkok"),
@@ -51,21 +51,21 @@ class ProjectMangement:
                 "project_name": project_name,
                 "project_uuid": project_uuid,
                 "project_description": project_description,
-                "project_owner_name": token_data["name"],
+                "project_owner_name": token_data["issuer"],
                 "project_owner_uuid": token_data["uuid"],
                 "project_last_modified": pendulum.now(tz="Asia/Bangkok"),
                 "project_created_time": pendulum.now(tz="Asia/Bangkok"),
                 "project_modified_log": [
                     {
-                        "name": token_data["name"],
+                        "name": token_data["issuer"],
                         "uuid": token_data["uuid"],
                         "action": "create_project",
                         "timestamp": pendulum.now(tz="Asia/Bangkok"),
                     }
                 ],
-                "project_member": [
+                "project_members": [
                     {
-                        "name": token_data["name"],
+                        "name": token_data["issuer"],
                         "uuid": token_data["uuid"],
                         "role": "project_owner",
                         "timestamp": pendulum.now(tz="Asia/Bangkok"),
@@ -73,6 +73,7 @@ class ProjectMangement:
                 ],
                 "project_datasets": [],
                 "project_labeltool": [],
+                "isDeactive": False,
             }
         )
 
@@ -106,6 +107,31 @@ class ProjectMangement:
             project_owner = None
 
         return project_owner
+
+    @staticmethod
+    def get_project_data(project_id, token_data):
+        project_data = {}
+        try:
+            result = ProjectMangement.projectStore.find_one(
+                {"project_uuid": project_id}
+            )
+            project_data = {
+                "project_name": result["project_name"],
+                "project_uuid": result["project_uuid"],
+                "project_description": result["project_description"],
+                "project_owner_name": result["project_owner_name"],
+                "project_owner_uuid": result["project_owner_uuid"],
+                "project_last_modified": result["project_last_modified"],
+                "project_created_time": result["project_created_time"],
+                "project_modified_log": result["project_modified_log"],
+                "project_members": result["project_members"],
+                "project_datasets": result["project_datasets"],
+                "project_labeltool": result["project_labeltool"],
+            }
+        except:
+            project_data = None
+
+        return project_data
 
     @staticmethod
     def add_project_to_team(team_uuid, project_uuid, token_data):

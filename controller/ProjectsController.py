@@ -35,6 +35,50 @@ async def create_project(
     return response
 
 
+@projects_control_api.get("/project/{project_id}")
+async def get_projec_data(project_id, Authorization: Optional[str] = Header(None)):
+    """
+    เป็น API สำหรับการสร้าง Project
+    Parameters
+    ----------
+    data : pydantic
+    * project_id  : str
+
+    Returns
+    -------
+    Project Infomation
+
+    """
+
+    _, token_data = Authentication.verify_token(Authorization)
+
+    response = ProjectMangement.get_project_data(project_id, token_data)
+
+    return response
+
+
+@projects_control_api.get("/userproject")
+async def get_projec_data(project_id, Authorization: Optional[str] = Header(None)):
+    """
+    เป็น API สำหรับการสร้าง Project
+    Parameters
+    ----------
+    data : pydantic
+    * project_id  : str
+
+    Returns
+    -------
+    Project Infomation
+
+    """
+
+    _, token_data = Authentication.verify_token(Authorization)
+
+    response = ProjectMangement.get_project_data(project_id, token_data)
+
+    return response
+
+
 @projects_control_api.post("/add/project-team")
 async def add_project_to_team(
     data: AddProject2Team, Authorization: Optional[str] = Header(None)
