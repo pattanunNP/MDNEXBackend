@@ -49,3 +49,10 @@ SECERET_EMAIL_KEY = str(
     )
 )
 
+
+FIREBASE_CRED_PATH = str(
+    os.environ.get(
+        "FIREBASE_CRED_PATH",
+        "./firebase/mdnex-projects-firebase-adminsdk-co1ek-d234539b3c.json",
+    )
+)

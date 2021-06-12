@@ -50,3 +50,7 @@ class DeleteTeam(BaseModel):
 class Refresh(BaseModel):
     refresh_token: str
 
+
+class CreateDataset(BaseModel):
+    dataset_name: str
+    dataset_description: Optional[str] = None

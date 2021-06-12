@@ -106,7 +106,7 @@ async def add_project_to_team(
     return response
 
 
-@projects_control_api.delete("/delete/project")
+@projects_control_api.post("/delete/project")
 async def delete_project(
     data: DeleteProject, Authorization: Optional[str] = Header(None)
 ):

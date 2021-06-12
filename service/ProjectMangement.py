@@ -77,18 +77,6 @@ class ProjectMangement:
             }
         )
 
-        try:
-            ProjectMangement.userDocuments.create_index([("project_uuid", "text")])
-            ProjectMangement.userDocuments.create_index(
-                [("project_owner_uuid", "text")]
-            )
-            ProjectMangement.userDocuments.create_index(
-                [("project_owner_name", "text")]
-            )
-
-        except:
-            pass
-
         ProjectMangement.userDocuments.find_one_and_update(
             {"uuid": token_data["uuid"]}, {"$push": {"projects": project_uuid}}
         )

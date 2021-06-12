@@ -13,3 +13,4 @@ requests
 pendulum
 aiofiles
 python-multipart
+firebase-admin
