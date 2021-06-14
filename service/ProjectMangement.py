@@ -5,6 +5,7 @@ from .TeamsMangement import TeamsMangement
 from utils.Recorddata import Recorddata
 import uuid
 import pendulum
+import random
 
 
 class ProjectMangement:
@@ -16,10 +17,18 @@ class ProjectMangement:
     @staticmethod
     def create_projects(project_name, token_data, project_description=None):
 
+        bg_list = [
+            "https://res.cloudinary.com/image-chatbot/image/upload/v1623682815/MD_NEX/cool-background_mg7zzn.png",
+            "https://res.cloudinary.com/image-chatbot/image/upload/v1623682815/MD_NEX/cool-background_2_erfmxs.png",
+            "https://res.cloudinary.com/image-chatbot/image/upload/v1623682815/MD_NEX/cool-background_1_jgyzpi.png",
+        ]
+
+        thumbnail_img = random.choice(bg_list)
         project_uuid = str(uuid.uuid4())
         project_object = {
             "project_name": project_name,
             "project_uuid": project_uuid,
+            "project_thumbnail": thumbnail_img,
             "project_description": project_description,
             "project_owner_name": token_data["issuer"],
             "project_owner_uuid": token_data["uuid"],
@@ -50,6 +59,7 @@ class ProjectMangement:
             {
                 "project_name": project_name,
                 "project_uuid": project_uuid,
+                "project_thumbnail": thumbnail_img,
                 "project_description": project_description,
                 "project_owner_name": token_data["issuer"],
                 "project_owner_uuid": token_data["uuid"],
@@ -97,7 +107,7 @@ class ProjectMangement:
         return project_owner
 
     @staticmethod
-    def get_project_data(project_id, token_data):
+    def get_project_data(project_id):
         project_data = {}
         try:
             result = ProjectMangement.projectStore.find_one(
@@ -106,6 +116,7 @@ class ProjectMangement:
             project_data = {
                 "project_name": result["project_name"],
                 "project_uuid": result["project_uuid"],
+                "project_thumbnail": result["project_thumbnail"],
                 "project_description": result["project_description"],
                 "project_owner_name": result["project_owner_name"],
                 "project_owner_uuid": result["project_owner_uuid"],

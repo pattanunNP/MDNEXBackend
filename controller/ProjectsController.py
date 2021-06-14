@@ -50,15 +50,15 @@ async def get_projec_data(project_id, Authorization: Optional[str] = Header(None
 
     """
 
-    _, token_data = Authentication.verify_token(Authorization)
+    Authentication.verify_token(Authorization)
 
-    response = ProjectMangement.get_project_data(project_id, token_data)
+    response = ProjectMangement.get_project_data(project_id)
 
     return response
 
 
 @projects_control_api.get("/userproject")
-async def get_projec_data(project_id, Authorization: Optional[str] = Header(None)):
+async def get_projec_data(Authorization: Optional[str] = Header(None)):
     """
     เป็น API สำหรับการสร้าง Project
     Parameters
@@ -74,7 +74,7 @@ async def get_projec_data(project_id, Authorization: Optional[str] = Header(None
 
     _, token_data = Authentication.verify_token(Authorization)
 
-    response = ProjectMangement.get_project_data(project_id, token_data)
+    response = ProjectMangement.get_project_data(token_data)
 
     return response
 

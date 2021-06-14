@@ -16,6 +16,7 @@ app = FastAPI(title="MD NEX", description="API for MDNEX", version="0.1.0")
 
 origins = [
     "http://localhost:3000",
+    "http://localhost:3001",
     "https://mdnex.netlify.app",
     "https://mdnex.standupcode.co",
 ]

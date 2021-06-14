@@ -1,4 +1,3 @@
-import firebase_admin
 import config as ENV
 from fastapi import HTTPException
 from datetime import datetime
@@ -6,7 +5,6 @@ from .TeamsMangement import TeamsMangement
 from utils.Recorddata import Recorddata
 import pendulum
 from utils.FirebaseConnector import Firebase
-
 import uuid
 
 
@@ -20,18 +18,34 @@ class FileUploadMangement:
     firebase_admin = Firebase()
 
     @staticmethod
-    def UploadFile(files_content, files_name, token_data):
+    def UploadFile(files_content, dataset_name, dataset_uuid, files_name, token_data):
 
         fileUploadObj = {}
 
-        filePack = []
+        datasetObj = []
 
         dataset = {}
 
+        user_id = token_data["uuid"]
+
         for filename, file_content in zip(files_name, files_content):
 
-            fileUploadObj = {"filename": filename, "file_content": []}
-            filePack.append(fileUploadObj)
+            url = FileUploadMangement.firebase_admin.uploadUserFile(
+                user_id, dataset_name, file_content, filename,
+            )
+            fileUploadObj = {
+                "filename": filename,
+                "files_url": url,
+                "file_uuid": f"{uuid.uuid4()}",
+            }
+            datasetObj.append(fileUploadObj)
+
+        dataset = {
+            "dataset_uuid": dataset_uuid,
+            "dataset_name": dataset_name,
+            "message": "Success",
+            "content": datasetObj,
+        }
 
         return dataset
 
@@ -42,6 +56,7 @@ class FileUploadMangement:
         dataset = {
             "dataset_name": dataset_name,
             "dataset_uuid": dataset_uuid,
+            "dataset_thumbnail": "https://res.cloudinary.com/image-chatbot/image/upload/v1623645430/MD_NEX/Stand_Up_Code_y98un8.png",
             "dataset_description": dataset_description,
             "dataset_owner_uuid": token_data["uuid"],
             "dataset_owner_name": token_data["issuer"],

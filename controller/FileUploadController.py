@@ -10,7 +10,10 @@ fileupload_control_api = APIRouter()
 # acess controller
 @fileupload_control_api.post("/dataset/upload")
 async def upload_dataset(
-    files: List[UploadFile] = File(...), Authorization: Optional[str] = Header(None)
+    dataset_name: str,
+    dataset_uuid: str,
+    files: List[UploadFile] = File(...),
+    Authorization: Optional[str] = Header(None),
 ):
 
     """
@@ -32,9 +35,11 @@ async def upload_dataset(
 
     _, data = Authentication.verify_token(Authorization)
 
-    response = FileUploadMangement.UploadFile(file_content_list, filename_list, data)
+    response = FileUploadMangement.UploadFile(
+        file_content_list, dataset_name, dataset_uuid, filename_list, data
+    )
 
-    print(response)
+    # print(response)
 
     return response
 
@@ -62,7 +67,7 @@ async def search_user(data: CreateDataset, Authorization: Optional[str] = Header
     _, token_data = Authentication.verify_token(Authorization)
 
     response = FileUploadMangement.CreateDataset(
-        dataset_description, token_data, dataset_description,
+        dataset_name, token_data, dataset_description,
     )
 
     print(response)

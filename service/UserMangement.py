@@ -93,6 +93,7 @@ class UserMangement:
                 "_id": str(result["_id"]),
                 "project_name": result["project_name"],
                 "project_uuid": result["project_uuid"],
+                "project_thumbnail": result["project_thumbnail"],
                 "project_description": result["project_description"],
                 "project_owner_name": result["project_owner_name"],
                 "project_owner_uuid": result["project_owner_uuid"],

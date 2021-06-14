@@ -54,3 +54,4 @@ class Refresh(BaseModel):
 class CreateDataset(BaseModel):
     dataset_name: str
     dataset_description: Optional[str] = None
+
