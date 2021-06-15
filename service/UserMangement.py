@@ -123,7 +123,7 @@ class UserMangement:
             UserMangement.dataStore.find({"dataset_owner_uuid": token_data["uuid"]})
         ):
             number_of_images = len(result["dataset_files"])
-            project_data_obj = {
+            data_obj = {
                 "_id": str(result["_id"]),
                 "dataset_name": result["dataset_name"],
                 "dataset_uuid": result["dataset_uuid"],
@@ -140,9 +140,35 @@ class UserMangement:
                 "dataset_number_of_images": number_of_images,
             }
 
-            dataset_match.append(project_data_obj)
+            dataset_match.append(data_obj)
 
         datasets_data = {
             "match": dataset_match,
         }
         return datasets_data
+
+    @staticmethod
+    def get_user_dataset(dataset_uuid):
+        datasets_data = {}
+
+        result = UserMangement.dataStore.find_one({"dataset_uuid": dataset_uuid})
+        number_of_images = len(result["dataset_files"])
+        # print(result)
+        datasets_data = {
+            "dataset_name": result["dataset_name"],
+            "dataset_uuid": result["dataset_uuid"],
+            "dataset_description": result["dataset_description"],
+            "dataset_thumbnail": result["dataset_thumbnail"],
+            "dataset_owner_name": result["dataset_owner_name"],
+            "dataset_owner_uuid": result["dataset_owner_uuid"],
+            "dataset_last_modified": result["dataset_last_modified"],
+            "dataset_created_time": result["dataset_created_time"],
+            "dataset_modified_log": result["dataset_modified_log"],
+            "dataset_members": result["dataset_members"],
+            "isDeactive": result["isDeactive"],
+            "dataset_files": result["dataset_files"],
+            "dataset_number_of_images": number_of_images,
+        }
+
+        return datasets_data
+

@@ -97,3 +97,25 @@ async def get_user_datasets(Authorization: Optional[str] = Header(None)):
     response = UserMangement.get_user_datasets(token_data)
 
     return response
+
+
+@user_control_api.get("/dataset/{dataset_uuid}")
+async def get_user_dataset(dataset_uuid, Authorization: Optional[str] = Header(None)):
+    """
+    เป็น API สำหรับการสร้าง Project
+    Parameters
+    ----------
+    data : pydantic
+    * project_id  : str
+
+    Returns
+    -------
+    Project Infomation
+
+    """
+
+    Authentication.verify_token(Authorization)
+
+    response = UserMangement.get_user_dataset(dataset_uuid)
+
+    return response
