@@ -2,7 +2,7 @@ from typing import Optional, List
 from service.FileUploadMangement import FileUploadMangement
 from service.AuthenticationMangement import Authentication
 from fastapi import APIRouter, Header, File, UploadFile
-from .Schema import CreateDataset
+from .Schema import CreateDataset, UpdateDataset
 
 fileupload_control_api = APIRouter()
 
@@ -39,8 +39,6 @@ async def upload_dataset(
         file_content_list, dataset_name, dataset_uuid, filename_list, data
     )
 
-    # print(response)
-
     return response
 
 
@@ -70,7 +68,40 @@ async def search_user(data: CreateDataset, Authorization: Optional[str] = Header
         dataset_name, token_data, dataset_description,
     )
 
-    print(response)
+    return response
+
+
+@fileupload_control_api.post("/dataset/update")
+async def search_user(
+    payload: UpdateDataset,
+    dataset_name: str,
+    dataset_uuid: str,
+    Authorization: Optional[str] = Header(None),
+):
+
+    """
+    เป็น API สำหรับการ Search User
+    Parameters
+    ----------
+    data : pydantic
+    * username  : str
+  
+    
+    Returns
+    -------
+    username, email, uuid
+
+    """
+
+    _, token_data = Authentication.verify_token(Authorization)
+
+    response = FileUploadMangement.UpdateDataset(
+        action_type=payload.action_type,
+        content=payload.datasetfiles,
+        dataset_name=dataset_name,
+        dataset_uuid=dataset_uuid,
+        token_data=token_data,
+    )
 
     return response
 

@@ -2,7 +2,6 @@ import config as ENV
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import storage
-import uuid
 
 
 class Firebase:
@@ -15,17 +14,17 @@ class Firebase:
         self.bucket = storage.bucket()
         print("Firebase: Connected !")
 
-    def uploadUserFile(self, userID, datasetName, Data, fileName):
+    def uploadUserFile(self, userID, datasetName, Data, fileName, filename_gen):
         ftype = fileName.split(".")[-1]
 
-        random_name = uuid.uuid4()
-
-        blob = self.bucket.blob(f"Dataset/{userID}/{datasetName}/{random_name}.{ftype}")
+        blob = self.bucket.blob(
+            f"Dataset/{userID}/{datasetName}/{filename_gen}.{ftype}"
+        )
         try:
             blob.upload_from_string(Data, content_type="application/octet-stream")
 
             url = self.bucket.get_blob(
-                f"Dataset/{userID}/{datasetName}/{random_name}.{ftype}"
+                f"Dataset/{userID}/{datasetName}/{filename_gen}.{ftype}"
             )
             url.make_public()
             return url.media_link

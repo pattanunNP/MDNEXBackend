@@ -55,3 +55,8 @@ class CreateDataset(BaseModel):
     dataset_name: str
     dataset_description: Optional[str] = None
 
+
+class UpdateDataset(BaseModel):
+    datasetfiles: Optional[list] = None
+    action_type: str
+
