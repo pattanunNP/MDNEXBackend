@@ -60,3 +60,8 @@ class UpdateDataset(BaseModel):
     datasetfiles: Optional[list] = None
     action_type: str
 
+
+class CreateTeamProject(BaseModel):
+    project_name: str
+    team_uuid: str
+    project_description: Optional[str] = None

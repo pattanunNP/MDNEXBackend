@@ -3,7 +3,7 @@ import config as ENV
 from fastapi import HTTPException
 from utils.Recorddata import Recorddata
 import uuid
-import pendulum
+import pendulum, random
 
 
 class TeamsMangement:
@@ -11,6 +11,7 @@ class TeamsMangement:
     userDocuments = Recorddata.userDocuments
     projectStore = Recorddata.projectStore
     teamStore = Recorddata.teamStore
+    teamprojectStore = Recorddata.teamprojectstore
 
     @staticmethod
     def create_team(team_name, token_data, team_description=None):
@@ -147,6 +148,95 @@ class TeamsMangement:
         else:
             reponse = {"message": f"Couldn't found Team ID: {team_uuid}"}
             return reponse
+
+    @staticmethod
+    def create_teamproject(
+        team_uuid, project_name, token_data, project_description=None
+    ):
+
+        bg_list = [
+            "https://res.cloudinary.com/image-chatbot/image/upload/v1623682815/MD_NEX/cool-background_mg7zzn.png",
+            "https://res.cloudinary.com/image-chatbot/image/upload/v1623682815/MD_NEX/cool-background_2_erfmxs.png",
+            "https://res.cloudinary.com/image-chatbot/image/upload/v1623682815/MD_NEX/cool-background_1_jgyzpi.png",
+        ]
+
+        thumbnail_img = random.choice(bg_list)
+        project_uuid = str(uuid.uuid4())
+        project_object = {
+            "project_name": project_name,
+            "project_uuid": project_uuid,
+            "team_uuid": team_uuid,
+            "project_thumbnail": thumbnail_img,
+            "project_description": project_description,
+            "project_owner_name": token_data["issuer"],
+            "project_owner_uuid": token_data["uuid"],
+            "project_last_modified": pendulum.now(tz="Asia/Bangkok"),
+            "project_created_time": pendulum.now(tz="Asia/Bangkok"),
+            "project_modified_log": {
+                0: {
+                    "name": token_data["issuer"],
+                    "uuid": token_data["uuid"],
+                    "action": "create_project",
+                    "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                }
+            },
+            "project_member": {
+                0: {
+                    "name": token_data["issuer"],
+                    "uuid": token_data["uuid"],
+                    "role": "project_owner",
+                    "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                }
+            },
+            "project_datasets": {},
+            "project_labeltool": {},
+            "isTeamProject": True,
+            "message": "Project was created",
+        }
+
+        TeamsMangement.teamprojectStore.insert_one(
+            {
+                "project_name": project_name,
+                "project_uuid": project_uuid,
+                "team_uuid": team_uuid,
+                "project_thumbnail": thumbnail_img,
+                "project_description": project_description,
+                "project_owner_name": token_data["issuer"],
+                "project_owner_uuid": token_data["uuid"],
+                "project_last_modified": pendulum.now(tz="Asia/Bangkok"),
+                "project_created_time": pendulum.now(tz="Asia/Bangkok"),
+                "project_modified_log": [
+                    {
+                        "name": token_data["issuer"],
+                        "uuid": token_data["uuid"],
+                        "action": "create_project",
+                        "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                    }
+                ],
+                "project_members": [
+                    {
+                        "name": token_data["issuer"],
+                        "uuid": token_data["uuid"],
+                        "role": "project_owner",
+                        "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                    }
+                ],
+                "project_datasets": [],
+                "project_labeltool": [],
+                "isDeactive": False,
+                "isTeamProject": True,
+            }
+        )
+
+        TeamsMangement.userDocuments.find_one_and_update(
+            {"uuid": token_data["uuid"]}, {"$push": {"projects": project_uuid}}
+        )
+
+        TeamsMangement.teamStore.find_one_and_update(
+            {"team_uuid": team_uuid}, {"$push": {"team_projects": project_uuid}}
+        )
+
+        return project_object
 
     @staticmethod
     def delete_team(team_uuid, token_data):

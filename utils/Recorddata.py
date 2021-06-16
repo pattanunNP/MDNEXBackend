@@ -10,3 +10,4 @@ class Recorddata:
     projectStore = db.projectstore
     teamStore = db.teamstore
     datastore = db.datastore
+    teamprojectstore = db.teamprojectstore

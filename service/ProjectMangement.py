@@ -52,6 +52,7 @@ class ProjectMangement:
             },
             "project_datasets": {},
             "project_labeltool": {},
+            "isTeamProject": False,
             "message": "Project was created",
         }
 
@@ -84,6 +85,7 @@ class ProjectMangement:
                 "project_datasets": [],
                 "project_labeltool": [],
                 "isDeactive": False,
+                "isTeamProject": False,
             }
         )
 
