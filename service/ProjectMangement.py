@@ -13,6 +13,7 @@ class ProjectMangement:
     userDocuments = Recorddata.userDocuments
     projectStore = Recorddata.projectStore
     teamStore = Recorddata.teamStore
+    dataStore = Recorddata.datastore
 
     @staticmethod
     def create_projects(project_name, token_data, project_description=None):
@@ -181,6 +182,11 @@ class ProjectMangement:
                 ProjectMangement.projectStore.delete_one({"project_uuid": project_uuid})
                 ProjectMangement.userDocuments.find_one_and_update(
                     {"uuid": uuid_key}, {"$pull": {"projects": project_uuid}}
+                )
+
+                ProjectMangement.dataStore.update_many(
+                    {"dataset_atteched_project": project_uuid},
+                    {"$pull": {"dataset_atteched_project": project_uuid}},
                 )
 
                 return response

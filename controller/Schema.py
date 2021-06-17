@@ -65,3 +65,13 @@ class CreateTeamProject(BaseModel):
     project_name: str
     team_uuid: str
     project_description: Optional[str] = None
+
+
+class AddDatasetToProject(BaseModel):
+    project_uuid: str
+    dataset_uuid: str
+
+
+class RemoveDatasetToProject(BaseModel):
+    project_uuid: str
+    dataset_uuid: str

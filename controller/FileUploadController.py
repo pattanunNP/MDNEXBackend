@@ -2,7 +2,12 @@ from typing import Optional, List
 from service.FileUploadMangement import FileUploadMangement
 from service.AuthenticationMangement import Authentication
 from fastapi import APIRouter, Header, File, UploadFile
-from .Schema import CreateDataset, UpdateDataset
+from .Schema import (
+    CreateDataset,
+    UpdateDataset,
+    AddDatasetToProject,
+    RemoveDatasetToProject,
+)
 
 fileupload_control_api = APIRouter()
 
@@ -43,7 +48,9 @@ async def upload_dataset(
 
 
 @fileupload_control_api.post("/dataset/newdata")
-async def search_user(data: CreateDataset, Authorization: Optional[str] = Header(None)):
+async def create_dataset(
+    data: CreateDataset, Authorization: Optional[str] = Header(None)
+):
 
     """
     เป็น API สำหรับการ Search User
@@ -66,6 +73,66 @@ async def search_user(data: CreateDataset, Authorization: Optional[str] = Header
 
     response = FileUploadMangement.CreateDataset(
         dataset_name, token_data, dataset_description,
+    )
+
+    return response
+
+
+@fileupload_control_api.post("/dataset/add-to-project")
+async def add_dataset_to_project(
+    data: AddDatasetToProject, Authorization: Optional[str] = Header(None)
+):
+
+    """
+    เป็น API สำหรับการ Search User
+    Parameters
+    ----------
+    data : pydantic
+    * username  : str
+  
+    
+    Returns
+    -------
+    username, email, uuid
+
+    """
+    project_uuid = data.project_uuid
+    dataset_uuid = data.dataset_uuid
+
+    _, token_data = Authentication.verify_token(Authorization)
+
+    response = FileUploadMangement.AddDatasetToProject(
+        project_uuid, dataset_uuid, token_data
+    )
+
+    return response
+
+
+@fileupload_control_api.post("/dataset/remove-from-project")
+async def remove_dataset_to_project(
+    data: RemoveDatasetToProject, Authorization: Optional[str] = Header(None)
+):
+
+    """
+    เป็น API สำหรับการ Search User
+    Parameters
+    ----------
+    data : pydantic
+    * username  : str
+  
+    
+    Returns
+    -------
+    username, email, uuid
+
+    """
+    project_uuid = data.project_uuid
+    dataset_uuid = data.dataset_uuid
+
+    _, token_data = Authentication.verify_token(Authorization)
+
+    response = FileUploadMangement.RemoveDatasetToProject(
+        project_uuid, dataset_uuid, token_data
     )
 
     return response

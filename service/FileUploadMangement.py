@@ -61,6 +61,9 @@ class FileUploadMangement:
             "https://res.cloudinary.com/image-chatbot/image/upload/v1623682815/MD_NEX/cool-background_mg7zzn.png",
             "https://res.cloudinary.com/image-chatbot/image/upload/v1623682815/MD_NEX/cool-background_2_erfmxs.png",
             "https://res.cloudinary.com/image-chatbot/image/upload/v1623682815/MD_NEX/cool-background_1_jgyzpi.png",
+            "https://res.cloudinary.com/image-chatbot/image/upload/v1623910703/MD_NEX/cool-background_4_uyjgvu.png",
+            "https://res.cloudinary.com/image-chatbot/image/upload/v1623910705/MD_NEX/cool-background_3_piefpp.png",
+            "https://res.cloudinary.com/image-chatbot/image/upload/v1623910705/MD_NEX/cool-background_3_piefpp.png",
         ]
 
         thumbnail_img = random.choice(bg_list)
@@ -96,6 +99,7 @@ class FileUploadMangement:
                 "dataset_last_modified": str(pendulum.now(tz="Asia/Bangkok")),
                 "dataset_created_time": str(pendulum.now(tz="Asia/Bangkok")),
                 "dataset_files": [],
+                "dataset_atteched_project": [],
                 "dataset_modified_log": [
                     {
                         "name": token_data["issuer"],
@@ -141,4 +145,65 @@ class FileUploadMangement:
             )
             response = {"message": "Thumbnail updated"}
         return response
+
+    @staticmethod
+    def check_owner(project_uuid):
+        try:
+            project_data = FileUploadMangement.projectStore.find_one(
+                {"project_uuid": project_uuid}
+            )
+            project_owner = project_data["project_owner_uuid"]
+
+        except:
+            project_owner = None
+
+        return project_owner
+
+    @staticmethod
+    def AddDatasetToProject(project_uuid, dataset_uuid, token_data):
+
+        uuid_key = token_data["uuid"]
+        owner = FileUploadMangement.check_owner(project_uuid)
+
+        if owner == uuid_key:
+
+            FileUploadMangement.projectStore.find_one_and_update(
+                {"project_uuid": project_uuid},
+                {"$push": {"project_datasets": dataset_uuid}},
+            )
+            FileUploadMangement.dataStore.find_one_and_update(
+                {"dataset_uuid": dataset_uuid},
+                {"$push": {"dataset_atteched_project": project_uuid}},
+            )
+            response = {"message": "dataset added to project"}
+            return response
+
+        else:
+            raise HTTPException(
+                status_code=401, detail="only project owner can add datset to project"
+            )
+
+    @staticmethod
+    def RemoveDatasetToProject(project_uuid, dataset_uuid, token_data):
+
+        uuid_key = token_data["uuid"]
+        owner = FileUploadMangement.check_owner(project_uuid)
+
+        if owner == uuid_key:
+            FileUploadMangement.projectStore.find_one_and_update(
+                {"project_uuid": project_uuid},
+                {"$pull": {"project_datasets": dataset_uuid}},
+            )
+            FileUploadMangement.dataStore.find_one_and_update(
+                {"dataset_uuid": dataset_uuid},
+                {"$pull": {"dataset_atteched_project": project_uuid}},
+            )
+            response = {"message": "dataset removed to project"}
+            return response
+
+        else:
+            raise HTTPException(
+                status_code=401,
+                detail="only project owner can remove datset to project",
+            )
 

@@ -137,6 +137,7 @@ class UserMangement:
                 "dataset_members": result["dataset_members"],
                 "isDeactive": result["isDeactive"],
                 "dataset_files": result["dataset_files"],
+                "dataset_atteched_project": result["dataset_atteched_project"],
                 "dataset_number_of_images": number_of_images,
             }
 
