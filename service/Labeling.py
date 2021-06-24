@@ -1,11 +1,17 @@
 import cv2, io
 from PIL import Image, ImageGrab
 import numpy as np
-
+from utils.Recorddata import Recorddata
 
 class LabelingTool:
+
+    userDocuments = Recorddata.userDocuments
+    projectStore = Recorddata.projectStore
+    teamStore = Recorddata.teamStore
+    dataStore = Recorddata.datastore
+
     @staticmethod
-    def FindColor(image, color):
+    def FindColor(image):
         colorPos = []
         edgePos = {}
 
@@ -44,10 +50,19 @@ class LabelingTool:
 
         processed_img = Image.fromarray(edge)
 
-        edge2path = LabelingTool.FindColor(processed_img, (255, 255, 255))
+        edge2path = LabelingTool.FindColor(processed_img)
 
         processed_img.save(f"cache/{filename}")
 
         print("DONE")
 
         return edge2path
+
+
+    @staticmethod
+    def edit(project_id,dataset_id,file_id,token_data):
+
+        result = LabelingTool.projectStore.find_one({"project_uuid":project_id})
+        if result != None:
+            for dataset in LabelingTool.projectStore.find({"project_datasets":project_id}):
+                print(dataset)

@@ -42,3 +42,29 @@ async def search_user(
 
     return result
 
+@labeling_control_api.get("/labeling/")
+async def label(
+    project_id:str,
+    dataset_id:str,
+    file_id:str,
+    Authorization: Optional[str] = Header(None),
+):
+
+    """
+    เป็น API สำหรับการ Search User
+    Parameters
+    ----------
+    data : pydantic
+    * username  : str
+  
+    
+    Returns
+    -------
+    username, email, uuid
+
+    """
+    _,token =   Authentication.verify_token(Authorization)
+
+    LabelingTool.edit(project_id,dataset_id,file_id,token)
+  
+    return 'result'
