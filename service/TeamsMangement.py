@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from utils.Recorddata import Recorddata
 import uuid
 import pendulum, random
-
+from datetime import datetime
 
 class TeamsMangement:
 
@@ -21,25 +21,24 @@ class TeamsMangement:
             "team_name": team_name,
             "team_uuid": team_uuid,
             "team_description": team_description,
-            "team_admin_name": token_data["issuer"],
             "team_admin_uuid": token_data["uuid"],
-            "team_last_modified": pendulum.now(tz="Asia/Bangkok"),
-            "team_created_time": pendulum.now(tz="Asia/Bangkok"),
+            "team_last_modified":datetime.now(),
+            "team_created_time":datetime.now(),
             "team_modified_log": {
                 0: {
-                    "name": token_data["issuer"],
+                   
                     "uuid": token_data["uuid"],
                     "action": "create_team",
-                    "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                    "timestamp":datetime.now(),
                 }
             },
             "team_project": [],
             "team_members": {
                 0: {
-                    "name": token_data["issuer"],
+                   
                     "uuid": token_data["uuid"],
                     "role": "team_admin",
-                    "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                    "timestamp":datetime.now(),
                 }
             },
             "message": "team was created",
@@ -50,24 +49,23 @@ class TeamsMangement:
                 "team_name": team_name,
                 "team_uuid": team_uuid,
                 "team_description": team_description,
-                "team_admin_name": token_data["issuer"],
                 "team_admin_uuid": token_data["uuid"],
-                "team_last_modified": pendulum.now(tz="Asia/Bangkok"),
-                "team_created_time": pendulum.now(tz="Asia/Bangkok"),
+                "team_last_modified": datetime.now(),
+                "team_created_time": datetime.now(),
                 "team_modified_log": [
                     {
-                        "name": token_data["issuer"],
+                       
                         "uuid": token_data["uuid"],
                         "action": "create_team",
-                        "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                        "timestamp":datetime.now()
                     }
                 ],
                 "team_members": [
                     {
-                        "name": token_data["issuer"],
+                        
                         "uuid": token_data["uuid"],
                         "role": "team_admin",
-                        "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                        "timestamp":datetime.now()
                     }
                 ],
                 "team_projects": [],
@@ -97,7 +95,6 @@ class TeamsMangement:
             team_obj = {
                 "_id": str(team["_id"]),
                 "team_uuid": team["team_uuid"],
-                "team_admin_name": team["team_admin_name"],
                 "team_admin_uuid": team["team_admin_uuid"],
                 "team_last_modified": team["team_last_modified"],
                 "team_created_time": team["team_created_time"],
@@ -174,7 +171,7 @@ class TeamsMangement:
             "project_created_time": pendulum.now(tz="Asia/Bangkok"),
             "project_modified_log": {
                 0: {
-                    "name": token_data["issuer"],
+                    
                     "uuid": token_data["uuid"],
                     "action": "create_project",
                     "timestamp": pendulum.now(tz="Asia/Bangkok"),
@@ -182,7 +179,7 @@ class TeamsMangement:
             },
             "project_member": {
                 0: {
-                    "name": token_data["issuer"],
+                   
                     "uuid": token_data["uuid"],
                     "role": "project_owner",
                     "timestamp": pendulum.now(tz="Asia/Bangkok"),
@@ -207,7 +204,7 @@ class TeamsMangement:
                 "project_created_time": pendulum.now(tz="Asia/Bangkok"),
                 "project_modified_log": [
                     {
-                        "name": token_data["issuer"],
+                       
                         "uuid": token_data["uuid"],
                         "action": "create_project",
                         "timestamp": pendulum.now(tz="Asia/Bangkok"),
@@ -215,7 +212,7 @@ class TeamsMangement:
                 ],
                 "project_members": [
                     {
-                        "name": token_data["issuer"],
+                       
                         "uuid": token_data["uuid"],
                         "role": "project_owner",
                         "timestamp": pendulum.now(tz="Asia/Bangkok"),

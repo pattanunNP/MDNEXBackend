@@ -138,6 +138,15 @@ class Authentication:
                         "message": "Login successfully",
                     }
 
+                    Authentication.userDB.find_one_and_update(
+                        {"uuid":uuid_key},
+                        {"$inc":{"login_count":1},
+                        "$currentDate": {
+                            "last_login": True}
+                        }
+                        
+                    )
+
                     return response
 
                 else:
@@ -281,10 +290,12 @@ class Authentication:
                 response = {"message": "account_verified", "uuid": data["uuid"]}
                 Authentication.userDB.find_one_and_update(
                     {"uuid": data["uuid"]},
-                    {
+                    {"$currentDate": {
+                        "verifiedTime": True
+                        },
                         "$set": {
                             "isVerified": True,
-                            "verifiedTime": str(pendulum.now(tz="Asia/Bangkok")),
+                            
                         }
                     },
                 )

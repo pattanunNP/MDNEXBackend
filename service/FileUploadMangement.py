@@ -8,6 +8,10 @@ import pendulum
 from utils.FirebaseConnector import Firebase
 import uuid
 import random
+from PIL import Image
+import io
+
+
 
 
 class FileUploadMangement:
@@ -32,6 +36,10 @@ class FileUploadMangement:
         file_uuid = str(uuid.uuid4())
         for filename, file_content in zip(files_name, files_content):
 
+
+            im = Image.open(io.BytesIO(file_content))
+            width, height = im.size
+            # print(width,height)
             url = FileUploadMangement.firebase_admin.uploadUserFile(
                 user_id,
                 dataset_name,
@@ -41,7 +49,13 @@ class FileUploadMangement:
             )
             fileUploadObj = {
                 "filename": filename,
-                "files_url": url,
+                "file_url": url,
+                "file_metadata":{
+                    "width":width, 
+                    "height":height
+                },
+                "uploader":user_id,
+                "timestamp":datetime.now(),
                 "file_uuid": file_uuid,
             }
             datasetObj.append(fileUploadObj)
@@ -74,16 +88,15 @@ class FileUploadMangement:
             "dataset_thumbnail": thumbnail_img,
             "dataset_description": dataset_description,
             "dataset_owner_uuid": token_data["uuid"],
-            "dataset_owner_name": token_data["issuer"],
-            "dataset_last_modified": str(pendulum.now(tz="Asia/Bangkok")),
-            "dataset_created_time": str(pendulum.now(tz="Asia/Bangkok")),
+            "dataset_last_modified": datetime.now(),
+            "dataset_created_time": datetime.now(),
             "dataset_files": [],
             "dataset_modified_log": {
                 0: {
                     "name": token_data["issuer"],
                     "uuid": token_data["uuid"],
                     "action": "create_dataset",
-                    "timestamp": str(pendulum.now(tz="Asia/Bangkok")),
+                    "timestamp": datetime.now(),
                 }
             },
             "message": "Dataset was created",
@@ -93,27 +106,26 @@ class FileUploadMangement:
                 "dataset_name": dataset_name,
                 "dataset_uuid": dataset_uuid,
                 "dataset_description": dataset_description,
-                "dataset_owner_name": token_data["issuer"],
                 "dataset_thumbnail": thumbnail_img,
                 "dataset_owner_uuid": token_data["uuid"],
-                "dataset_last_modified": str(pendulum.now(tz="Asia/Bangkok")),
-                "dataset_created_time": str(pendulum.now(tz="Asia/Bangkok")),
+                "dataset_last_modified": datetime.now(),
+                "dataset_created_time": datetime.now(),
                 "dataset_files": [],
                 "dataset_atteched_project": [],
                 "dataset_modified_log": [
                     {
-                        "name": token_data["issuer"],
+                        
                         "uuid": token_data["uuid"],
                         "action": "create_dataset",
-                        "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                        "timestamp": datetime.now(),
                     }
                 ],
                 "dataset_members": [
                     {
-                        "name": token_data["issuer"],
+                      
                         "uuid": token_data["uuid"],
                         "role": "dataset_owner",
-                        "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                        "timestamp":datetime.now(),
                     }
                 ],
                 "isDeactive": False,

@@ -3,6 +3,7 @@ from PIL import Image, ImageGrab
 import numpy as np
 from utils.Recorddata import Recorddata
 
+
 class LabelingTool:
 
     userDocuments = Recorddata.userDocuments
@@ -58,11 +59,30 @@ class LabelingTool:
 
         return edge2path
 
+    @staticmethod
+    def edit(project_id, dataset_id, file_id, token_data):
+
+        result = LabelingTool.projectStore.find_one({"project_uuid": project_id})
+        if result != None:
+            for dataset in LabelingTool.projectStore.find(
+                {"project_datasets": project_id}
+            ):
+                print(dataset)
 
     @staticmethod
-    def edit(project_id,dataset_id,file_id,token_data):
+    def getimage(project_id, dataset_id, file_id, token_data):
+        for files in LabelingTool.dataStore.find({"dataset_uuid": dataset_id}):
+            for file in files["dataset_files"]:
+                if file[0]["file_uuid"] == file_id:
+                    return file[0]
 
-        result = LabelingTool.projectStore.find_one({"project_uuid":project_id})
-        if result != None:
-            for dataset in LabelingTool.projectStore.find({"project_datasets":project_id}):
-                print(dataset)
+    @staticmethod
+    def create_task(project_id,token_data,spec_user="All"):
+
+        if spec_user == "All":
+            
+            for dataset in LabelingTool.projectStore({"project_uuid": project_id}):
+                print(dataset["data"])
+
+
+        return

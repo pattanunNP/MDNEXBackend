@@ -31,24 +31,23 @@ class ProjectMangement:
             "project_uuid": project_uuid,
             "project_thumbnail": thumbnail_img,
             "project_description": project_description,
-            "project_owner_name": token_data["issuer"],
             "project_owner_uuid": token_data["uuid"],
-            "project_last_modified": pendulum.now(tz="Asia/Bangkok"),
-            "project_created_time": pendulum.now(tz="Asia/Bangkok"),
+            "project_last_modified": pendulum.now(),
+            "project_created_time": pendulum.now(),
             "project_modified_log": {
                 0: {
-                    "name": token_data["issuer"],
+                  
                     "uuid": token_data["uuid"],
                     "action": "create_project",
-                    "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                    "timestamp":datetime.now(),
                 }
             },
             "project_member": {
                 0: {
-                    "name": token_data["issuer"],
+                    
                     "uuid": token_data["uuid"],
                     "role": "project_owner",
-                    "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                    "timestamp":datetime.now(),
                 }
             },
             "project_datasets": {},
@@ -63,24 +62,22 @@ class ProjectMangement:
                 "project_uuid": project_uuid,
                 "project_thumbnail": thumbnail_img,
                 "project_description": project_description,
-                "project_owner_name": token_data["issuer"],
                 "project_owner_uuid": token_data["uuid"],
-                "project_last_modified": pendulum.now(tz="Asia/Bangkok"),
-                "project_created_time": pendulum.now(tz="Asia/Bangkok"),
+                "project_last_modified": datetime.now(),
+                "project_created_time": datetime.now(),
                 "project_modified_log": [
                     {
-                        "name": token_data["issuer"],
                         "uuid": token_data["uuid"],
                         "action": "create_project",
-                        "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                        "timestamp":datetime.now()
+                        
                     }
                 ],
                 "project_members": [
                     {
-                        "name": token_data["issuer"],
+                       
                         "uuid": token_data["uuid"],
-                        "role": "project_owner",
-                        "timestamp": pendulum.now(tz="Asia/Bangkok"),
+                      "timestamp":datetime.now()
                     }
                 ],
                 "project_datasets": [],
@@ -112,28 +109,118 @@ class ProjectMangement:
     @staticmethod
     def get_project_data(project_id):
         project_data = {}
-        try:
-            result = ProjectMangement.projectStore.find_one(
-                {"project_uuid": project_id}
-            )
-            project_data = {
-                "project_name": result["project_name"],
-                "project_uuid": result["project_uuid"],
-                "project_thumbnail": result["project_thumbnail"],
-                "project_description": result["project_description"],
-                "project_owner_name": result["project_owner_name"],
-                "project_owner_uuid": result["project_owner_uuid"],
-                "project_last_modified": result["project_last_modified"],
-                "project_created_time": result["project_created_time"],
-                "project_modified_log": result["project_modified_log"],
-                "project_members": result["project_members"],
-                "project_datasets": result["project_datasets"],
-                "project_labeltool": result["project_labeltool"],
-            }
-        except:
-            project_data = None
+  
 
-        return project_data
+
+
+        results = ProjectMangement.projectStore.aggregate([
+        {
+            '$match': {
+                'project_uuid': project_id
+            }
+        }, {
+            '$unwind': {
+                'path': '$project_members'
+            }
+        }, {
+            '$lookup': {
+                'from': 'userdocuments', 
+                'localField': 'project_members.uuid', 
+                'foreignField': 'uuid', 
+                'as': 'project_members.member_info'
+            }
+        }, {
+            '$unwind': {
+                'path': '$project_members.member_info'
+            }
+        }, {
+            '$group': {
+                '_id': '$_id', 
+                'project_name': {
+                    '$first': '$project_name'
+                }, 
+                'project_uuid': {
+                    '$first': '$project_uuid'
+                }, 
+                'project_thumbnail': {
+                    '$first': '$project_thumbnail'
+                }, 
+                'project_description': {
+                    '$first': '$project_description'
+                }, 
+                'project_owner_uuid': {
+                    '$first': '$project_owner_uuid'
+                }, 
+                'project_modified_log': {
+                    '$first': '$project_modified_log'
+                }, 
+                'project_last_modified': {
+                    '$first': '$project_last_modified'
+                }, 
+                'project_created_time': {
+                    '$first': '$project_created_time'
+                }, 
+                'project_labeltool': {
+                    '$first': '$project_labeltool'
+                }, 
+                'project_datasets': {
+                    '$first': '$project_datasets'
+                }, 
+                'isTeamProject': {
+                    '$first': '$isTeamProject'
+                }, 
+                'project_members': {
+                    '$push': '$project_members'
+                }, 
+                'isDeactive': {
+                    '$first': '$isDeactive'
+                }
+            }
+        }
+    ])
+        
+        for result in results:
+            _id = str(result['_id'])
+            project_members =[]
+            info={}
+            for member in  result["project_members"]:
+                uuid = member["uuid"]
+                member_info = member["member_info"]
+                info={
+                    "_id":str(member_info["_id"]),
+                    "email":member_info["email"],
+                    "username":member_info["username"],
+                    "profile_photo":member_info["profile_photo"],
+                    "uuid":member_info["uuid"],
+                    "role":"admin",
+                    "projects":member_info["projects"],
+                    "teams":member_info["teams"]
+
+                }
+
+                project_members.append( {"uuid":  uuid,"member_info": info})
+              
+
+
+            project_data = {
+                        "_id":_id,
+                        "project_name": result["project_name"],
+                        "project_uuid": result["project_uuid"],
+                        "project_thumbnail": result["project_thumbnail"],
+                        "project_description": result["project_description"],
+                        "project_owner_uuid": result["project_owner_uuid"],
+                        "project_last_modified": result["project_last_modified"],
+                        "project_created_time": result["project_created_time"],
+                        "project_modified_log": result["project_modified_log"],
+                        "project_datasets": result["project_datasets"],
+                        "project_labeltool": result["project_labeltool"],
+                        "project_members":project_members
+                        
+                    
+                    
+                    }
+
+            return project_data
 
     @staticmethod
     def add_project_to_team(team_uuid, project_uuid, token_data):

@@ -1,4 +1,6 @@
 from typing import Optional, List
+
+from fastapi import responses
 from service.Labeling import LabelingTool
 from service.AuthenticationMangement import Authentication
 from fastapi import APIRouter, Header, File, UploadFile
@@ -42,11 +44,37 @@ async def search_user(
 
     return result
 
-@labeling_control_api.get("/labeling/")
+
+@labeling_control_api.post("/labeling/create-task")
+async def createTask(
+    project_id: str,
+    spec_user: Optional[str],
+    Authorization: Optional[str] = Header(None),
+):
+    _, token = Authentication.verify_token(Authorization)
+
+    responses = LabelingTool.create_task(project_id, token, spec_user)
+
+    return responses
+
+
+@labeling_control_api.get("/labeling/getimage")
+async def getImage(
+    project_id: str,
+    dataset_id: str,
+    file_id: str,
+    Authorization: Optional[str] = Header(None),
+):
+    _, token = Authentication.verify_token(Authorization)
+    responses = LabelingTool.getimage(project_id, dataset_id, file_id, token)
+    return responses
+
+
+@labeling_control_api.get("/labeling")
 async def label(
-    project_id:str,
-    dataset_id:str,
-    file_id:str,
+    project_id: str,
+    dataset_id: str,
+    file_id: str,
     Authorization: Optional[str] = Header(None),
 ):
 
@@ -63,8 +91,8 @@ async def label(
     username, email, uuid
 
     """
-    _,token =   Authentication.verify_token(Authorization)
+    _, token = Authentication.verify_token(Authorization)
 
-    LabelingTool.edit(project_id,dataset_id,file_id,token)
-  
-    return 'result'
+    LabelingTool.edit(project_id, dataset_id, file_id, token)
+    return "result"
+
