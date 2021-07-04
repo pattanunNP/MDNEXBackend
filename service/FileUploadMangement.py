@@ -91,6 +91,7 @@ class FileUploadMangement:
             "dataset_last_modified": datetime.now(),
             "dataset_created_time": datetime.now(),
             "dataset_files": [],
+            "isPrivate":True,
             "dataset_modified_log": {
                 0: {
                     "name": token_data["issuer"],
@@ -129,6 +130,7 @@ class FileUploadMangement:
                     }
                 ],
                 "isDeactive": False,
+                "isPrivate":True,
             }
         )
 
