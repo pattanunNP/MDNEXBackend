@@ -253,7 +253,21 @@ class Authentication:
                     "uuid": user_id,
                     "role": role,
                     "projects": [],
+                    "datasets":[],
+                    "Bio":{
+
+                        "Occopation":"",
+                        "Organization":"",
+                        "Location":"",
+                        "Website":"",
+                        "Github":"",
+                        "Linkedin":"",
+                        "Bio":""
+                    },
+                    "Followers":[],
+                    "Following":[],
                     "teams": [],
+                    
                 }
             )
 

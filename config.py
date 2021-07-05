@@ -40,7 +40,7 @@ MAILGUN_DOMAIN = str(os.environ.get("MAILGUN_DOMAIN", "noreply@mg.standupcode.co
 
 ROOT_URL = str(os.environ.get("ROOT_URL", "http://127.0.0.1:8000"))
 
-FRONTEND_URL = str(os.environ.get("FRONTEND_URL", "http://localhost:3000"))
+FRONTEND_URL = str(os.environ.get("FRONTEND_URL", "http://localhost:3001"))
 
 SECERET_EMAIL_KEY = str(
     os.environ.get(

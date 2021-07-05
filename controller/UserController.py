@@ -119,3 +119,22 @@ async def get_user_dataset(dataset_uuid, Authorization: Optional[str] = Header(N
     response = UserMangement.get_user_dataset(dataset_uuid)
 
     return response
+
+
+@user_control_api.get("/get-followers")
+async def get_follower(Authorization:Optional[str]=Header(None)):
+    
+    _,token =  Authentication.verify_token(Authorization)
+
+    respones = UserMangement.get_followers(token)
+    
+    return respones
+
+@user_control_api.get("/get-following")
+async def get_follower(Authorization:Optional[str]=Header(None)):
+    
+    _,token =  Authentication.verify_token(Authorization)
+
+    respones = UserMangement.get_following(token)
+    
+    return respones

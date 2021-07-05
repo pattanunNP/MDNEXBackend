@@ -74,6 +74,10 @@ class UserMangement:
             "username": result["username"],
             "role": result["role"],
             "teams": result["teams"],
+            "datasets":result["datasets"],
+            "Bio":result["Bio"],
+            "Followers":result["Followers"],
+            "Following":result["Following"],
             "message": "Success",
         }
 
@@ -171,3 +175,161 @@ class UserMangement:
 
         return datasets_data
 
+
+    @staticmethod
+    def get_followers(token):
+        followers_list=[]
+        responses = {}
+        
+        results = UserMangement.userDocuments.aggregate([
+            {
+                '$match': {
+                    'uuid': token['uuid']
+                }
+            }, {
+                '$unwind': {
+                    'path': '$Followers'
+                }
+            }, {
+                '$lookup': {
+                    'from': 'userdocuments', 
+                    'localField': 'Followers.uuid', 
+                    'foreignField': 'uuid', 
+                    'as': 'Followers.Followers_info'
+                }
+            }, {
+                '$unwind': {
+                    'path': '$Followers.Followers_info'
+                }
+            }, {
+                '$group': {
+                    '_id': '$_id', 
+                    'username': {
+                        '$first': '$username'
+                    }, 
+                    'uuid': {
+                        '$first': '$uuid'
+                    }, 
+                    'role': {
+                        '$first': '$role'
+                    }, 
+                    'profile_photo': {
+                        '$first': '$profile_photo'
+                    }, 
+                    'Followers': {
+                        '$push': '$Followers'
+                    }
+                }
+            }
+        ])
+
+        for result in  results :
+           
+            _id = str(result['_id'])
+            info={}
+            # print(result)
+            
+            for follower in result["Followers"]:
+
+                member_info = follower["Followers_info"]
+                info={
+                    "_id":str(member_info["_id"]),
+                    "email":member_info["email"],
+                    "username":member_info["username"],
+                    "profile_photo":member_info["profile_photo"],
+                    "uuid":member_info["uuid"],
+                
+                    
+                }
+                followers_list.append(info)
+    
+        responses = {
+
+               
+               "message":"followers",
+                "info":followers_list
+                
+            }
+            
+
+        return responses
+
+
+
+    
+    @staticmethod
+    def get_following(token):
+        following_list=[]
+        responses = {}
+        
+        
+        results = UserMangement.userDocuments.aggregate([
+            {
+                '$match': {
+                    'uuid': token['uuid']
+                }
+            }, {
+                '$unwind': {
+                    'path': '$Following'
+                }
+            }, {
+                '$lookup': {
+                    'from': 'userdocuments', 
+                    'localField': 'Following.uuid', 
+                    'foreignField': 'uuid', 
+                    'as': 'Following.Following_info'
+                }
+            }, {
+                '$unwind': {
+                    'path': '$Following.Following_info'
+                }
+            }, {
+                '$group': {
+                    '_id': '$_id', 
+                    'username': {
+                        '$first': '$username'
+                    }, 
+                    'uuid': {
+                        '$first': '$uuid'
+                    }, 
+                    'role': {
+                        '$first': '$role'
+                    }, 
+                    'profile_photo': {
+                        '$first': '$profile_photo'
+                    }, 
+                    'Following': {
+                        '$push': '$Following'
+                    }
+                }
+            }
+        ])
+        # print(results)
+        for result in  results:
+            _id = str(result['_id'])
+            
+            info={}
+            # print(result)
+            
+            for follower in result["Following"]:
+
+                member_info = follower["Following_info"]
+                info={
+                    "_id":str(member_info["_id"]),
+                    "email":member_info["email"],
+                    "username":member_info["username"],
+                    "profile_photo":member_info["profile_photo"],
+                    "uuid":member_info["uuid"],
+                
+                    
+                }
+                following_list.append(info)
+       
+        responses = {
+                "message":"following",
+                "info":following_list
+                
+            }
+            
+
+        return responses

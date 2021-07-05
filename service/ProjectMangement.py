@@ -110,8 +110,7 @@ class ProjectMangement:
     def get_project_data(project_id):
         project_data = {}
   
-
-
+        project_members =[]
 
         results = ProjectMangement.projectStore.aggregate([
         {
@@ -181,7 +180,7 @@ class ProjectMangement:
         
         for result in results:
             _id = str(result['_id'])
-            project_members =[]
+            
             info={}
             for member in  result["project_members"]:
                 uuid = member["uuid"]
@@ -194,7 +193,8 @@ class ProjectMangement:
                     "uuid":member_info["uuid"],
                     "role":"admin",
                     "projects":member_info["projects"],
-                    "teams":member_info["teams"]
+                    "teams":member_info["teams"],
+                    
 
                 }
 
