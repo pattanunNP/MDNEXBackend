@@ -1,8 +1,11 @@
 import cv2, io
 from PIL import Image, ImageGrab
 import numpy as np
+import uuid
 from utils.Recorddata import Recorddata
-
+import string
+import random
+from datetime import datetime
 
 class LabelingTool:
 
@@ -10,6 +13,7 @@ class LabelingTool:
     projectStore = Recorddata.projectStore
     teamStore = Recorddata.teamStore
     dataStore = Recorddata.datastore
+    taskStore = Recorddata.taskStore
 
     @staticmethod
     def FindColor(image):
@@ -22,6 +26,17 @@ class LabelingTool:
                     edgePos = {"x": x, "y": y}
                     colorPos.append(edgePos)
         return colorPos
+
+    
+    @staticmethod
+    def divide_chunks(l, n):
+      
+    # looping till length l
+        for i in range(0, len(l), n): 
+            yield l[i:i + n]
+
+
+    @staticmethod
 
     @staticmethod
     def autoEdgeDetection(
@@ -70,19 +85,206 @@ class LabelingTool:
                 print(dataset)
 
     @staticmethod
-    def getimage(project_id, dataset_id, file_id, token_data):
-        for files in LabelingTool.dataStore.find({"dataset_uuid": dataset_id}):
-            for file in files["dataset_files"]:
-                if file[0]["file_uuid"] == file_id:
-                    return file[0]
+    def get_tasks(task_id,token_data):
+        responses={}
+        tasks = LabelingTool.taskStore.aggregate([
+            {
+                '$match': {
+                    'task_uuid': task_id,
+                }
+            }, {
+                '$unwind': {
+                    'path': '$task_queue'
+                }
+            }, {
+                '$match': {
+                    'task_queue.labeler_uuid': token_data['uuid']
+                }
+            }
+        ])
+
+        for task in tasks:
+            _id = str(task['_id'])
+            responses={
+                "task": task['task_queue']['task']
+            }
+            return responses
 
     @staticmethod
-    def create_task(project_id,token_data,spec_user="All"):
+    def getimage(task_id, queue_id, token_data):
+        task = LabelingTool.taskStore.aggregate([
+        {
+            '$match': {
+                'task_uuid': task_id}
+        }, {
+            '$unwind': {
+                'path': '$task_queue'
+            }
+        }, {
+            '$match': {
+                'task_queue.labeler_uuid': token_data['uuid']
+            }
+        }, {
+            '$project': {
+                f'task_queue.task.{queue_id}': 1
+            }
+        }
+        ])
+        
+        for image_ in task:
+            image_data = image_['task_queue']['task']
 
-        if spec_user == "All":
+            if queue_id in image_data:
+
+                response = {
+                    "image":image_data[queue_id]['image']
+                }
+            else:
+                response={
+                    "message":"not found"
+                }
+            return response
+    @staticmethod
+    def create_task(project_id, task_name, task_labelers, token, task_mode="divide",task_due_date="" ,task_desciption=''):
+        response= {}
+        total_data =[]
+        task_queue=[]
+        task_={}
+        splited_task = {}
+        task_uuid = str(uuid.uuid4())
+        n_labelers = len(task_labelers)
+    
+        
+        if LabelingTool.projectStore.find_one({"project_uuid":project_id}) !=None:
+           results = LabelingTool.projectStore.aggregate([
+                        {
+                            '$match': {
+                                'project_uuid': project_id
+                            }
+                        }, {
+                            '$unwind': {
+                                'path': '$project_datasets'
+                            }
+                        }, {
+                            '$lookup': {
+                                'from': 'datastore', 
+                                'localField': 'project_datasets', 
+                                'foreignField': 'dataset_uuid', 
+                                'as': 'project_datasets.attached_dataset'
+                            }
+                        }, {
+                            '$unwind': {
+                                'path': '$project_datasets.attached_dataset'
+                            }
+                        }, {
+                            '$group': {
+                                '_id': '$_id', 
+                                'project_datasets': {
+                                    '$push': '$project_datasets'
+                                }
+                            }
+                        }
+                    ])
+           for result in results:
+                    # _id = str(result['_id'])
+                    
+                    for data in result['project_datasets']:
+                        
+                        for image in data['attached_dataset']['dataset_files']:
+                            
+                            total_data.append(image[0])
+                
             
-            for dataset in LabelingTool.projectStore({"project_uuid": project_id}):
-                print(dataset["data"])
+           if task_mode == "divide":
+                
+                split = round(len(total_data) / n_labelers)
+                labels = list(LabelingTool.divide_chunks(total_data,split))
+                
+
+                for  n_tasks, labeler in zip(labels,task_labelers):
+                    for task in n_tasks:
+                        q_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k = 6))  
+                        task_[q_id]={"image":task, "is_labeled":False}  
+                    splited_task={
+                        "total_drivied":len(task_),
+                         "labeler_uuid":labeler,
+                         "task":task_
+                     }
+                    task_queue.append(splited_task)  
 
 
-        return
+                   
+                response={
+                     "message":"success",
+                     "mode":task_mode,
+                     "n_labelers":n_labelers,
+                     "task_owner_uuid":token['uuid'],
+                     "task_uuid": task_uuid ,
+                     "task_queue":task_queue,
+                     "project_uuid":project_id,
+                     "project_created_time": datetime.now(),
+                    "total_image":len(total_data)
+                }
+
+                LabelingTool.taskStore.insert_one({
+                    "message":"success",
+                     "mode":task_mode,
+                     "n_labelers":n_labelers,
+                     "task_owner_uuid":token['uuid'],
+                     "task_uuid": task_uuid ,
+                     "task_queue":task_queue,
+                     "project_uuid":project_id,
+                     "project_created_time": datetime.now(),
+                    "total_image":len(total_data)
+                })       
+
+                LabelingTool.projectStore.find_one_and_update(
+                {"project_uuid": project_id}, 
+                {"$push": {"tasks": task_uuid}})
+                
+           elif task_mode=="parallel":
+               
+                for labeler in task_labelers:
+                    for task in total_data:
+                        q_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k = 6))  
+                        task_[q_id]={"image":task, "is_labeled":False}  
+                    splited_task={
+                            
+                            "labeler_uuid":labeler,
+                            "task":task_
+                        }
+                    task_queue.append(splited_task) 
+                    
+
+                response= {
+                    "message":"success",
+                    "mode":task_mode,
+                    "n_labelers":n_labelers ,
+                    "task_owner_uuid":token['uuid'],
+                    "project_created_time": datetime.now(),
+                    "task_queue":task_queue,
+                    "task_uuid": task_uuid,
+                    "project_uuid":project_id
+                }
+
+                LabelingTool.taskStore.insert_one({
+                    "message":"success",
+                    "mode":task_mode,
+                    "n_labelers":n_labelers ,
+                    "task_owner_uuid":token['uuid'],
+                    "project_created_time": datetime.now(),
+                    "task_queue":task_queue,
+                    "task_uuid": task_uuid,
+                    "project_uuid":project_id
+                })
+
+                LabelingTool.projectStore.find_one_and_update(
+                {"project_uuid": project_id}, 
+                {"$push": {"tasks": task_uuid}})
+                
+        else:
+            response={
+                "message":"not-fround project",
+                "project_uuid":project_id
+            }
+        return response

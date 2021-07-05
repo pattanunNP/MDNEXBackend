@@ -75,3 +75,10 @@ class AddDatasetToProject(BaseModel):
 class RemoveDatasetToProject(BaseModel):
     project_uuid: str
     dataset_uuid: str
+
+class CreateTask(BaseModel):
+    task_name: str
+    due_date : Optional[str] = None
+    task_description: Optional[str] = None
+    labelers: list
+    mode: str

@@ -51,7 +51,6 @@ class ProjectMangement:
                 }
             },
             "project_datasets": {},
-            "project_labeltool": {},
             "isTeamProject": False,
             "message": "Project was created",
         }
@@ -81,7 +80,7 @@ class ProjectMangement:
                     }
                 ],
                 "project_datasets": [],
-                "project_labeltool": [],
+                "tasks":[],
                 "isDeactive": False,
                 "isTeamProject": False,
             }
@@ -159,9 +158,7 @@ class ProjectMangement:
                 'project_created_time': {
                     '$first': '$project_created_time'
                 }, 
-                'project_labeltool': {
-                    '$first': '$project_labeltool'
-                }, 
+               
                 'project_datasets': {
                     '$first': '$project_datasets'
                 }, 
@@ -173,6 +170,9 @@ class ProjectMangement:
                 }, 
                 'isDeactive': {
                     '$first': '$isDeactive'
+                },
+                'tasks': {
+                    '$first': '$tasks'
                 }
             }
         }
@@ -195,6 +195,7 @@ class ProjectMangement:
                     "projects":member_info["projects"],
                     "teams":member_info["teams"],
                     
+                    
 
                 }
 
@@ -213,8 +214,8 @@ class ProjectMangement:
                         "project_created_time": result["project_created_time"],
                         "project_modified_log": result["project_modified_log"],
                         "project_datasets": result["project_datasets"],
-                        "project_labeltool": result["project_labeltool"],
-                        "project_members":project_members
+                        "project_members":project_members,
+                        "tasks":result['task']
                         
                     
                     

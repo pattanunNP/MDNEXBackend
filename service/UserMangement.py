@@ -107,7 +107,6 @@ class UserMangement:
                 "project_modified_log": result["project_modified_log"],
                 "project_members": result["project_members"],
                 "project_datasets": result["project_datasets"],
-                "project_labeltool": result["project_labeltool"],
                 "isDeactive": result["isDeactive"],
             }
 

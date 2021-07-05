@@ -11,3 +11,4 @@ class Recorddata:
     teamStore = db.teamstore
     datastore = db.datastore
     teamprojectstore = db.teamprojectstore
+    taskStore = db.taskstore

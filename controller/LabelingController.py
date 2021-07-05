@@ -1,5 +1,5 @@
 from typing import Optional, List
-
+from .Schema import CreateTask
 from fastapi import responses
 from service.Labeling import LabelingTool
 from service.AuthenticationMangement import Authentication
@@ -45,29 +45,46 @@ async def search_user(
     return result
 
 
-@labeling_control_api.post("/labeling/create-task")
+@labeling_control_api.post("/labeling/create/task")
 async def createTask(
     project_id: str,
-    spec_user: Optional[str],
+    task:CreateTask,
     Authorization: Optional[str] = Header(None),
 ):
     _, token = Authentication.verify_token(Authorization)
 
-    responses = LabelingTool.create_task(project_id, token, spec_user)
+    task_name = task.task_name
+    task_desciption = task.task_description
+    task_due_date = task.due_date
+    task_labelers = task.labelers
+    task_mode = task.mode
+
+    responses = LabelingTool.create_task(project_id,task_name,task_labelers, token, task_mode,task_due_date ,task_desciption)
 
     return responses
 
 
 @labeling_control_api.get("/labeling/getimage")
 async def getImage(
-    project_id: str,
-    dataset_id: str,
-    file_id: str,
+    task_id: str,
+    queue_id:str,
     Authorization: Optional[str] = Header(None),
 ):
     _, token = Authentication.verify_token(Authorization)
-    responses = LabelingTool.getimage(project_id, dataset_id, file_id, token)
+    responses = LabelingTool.getimage(task_id,queue_id, token)
     return responses
+
+
+
+@labeling_control_api.get("/labeling/gettasks")
+async def getTask(
+    task_id: str,
+    Authorization: Optional[str] = Header(None),
+):
+    _, token = Authentication.verify_token(Authorization)
+    responses = LabelingTool.get_tasks(task_id, token)
+    return responses
+
 
 
 @labeling_control_api.get("/labeling")
